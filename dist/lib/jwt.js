@@ -1,18 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signJwt = signJwt;
-exports.verifyJwt = verifyJwt;
-const node_util_1 = require("node:util");
+exports.signToken = signToken;
+exports.verifyToken = verifyToken;
 const jose_1 = require("jose");
-const secret = new node_util_1.TextEncoder().encode(process.env.JWT_SECRET || "default_secret");
-async function signJwt(payload, expiresIn = "7d") {
-    return new jose_1.SignJWT(payload)
-        .setProtectedHeader({ alg: "HS256" })
+const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+async function signToken(payload) {
+    return new jose_1.SignJWT({ ...payload })
+        .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
-        .setExpirationTime(expiresIn)
+        .setExpirationTime('7d')
         .sign(secret);
 }
-async function verifyJwt(token) {
+async function verifyToken(token) {
     const { payload } = await (0, jose_1.jwtVerify)(token, secret);
     return payload;
 }
