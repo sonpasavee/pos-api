@@ -19,8 +19,8 @@ export const authController = {
             const result = await authService.login(req.body.email, req.body.password)
             return res.json(result)
         } catch (err: any) {
-            if (err.message === 'INVALID_CREDENTIALS')
-                return res.status(401).json({ error: err.message })
+            if (err.message === 'USER_NOT_FOUND' || err.message === 'INVALID_PASSWORD')
+                return res.status(401).json({ error: 'INVALID_CREDENTIALS' })
             res.status(500).json({ error: 'INTERNAL_ERROR' })
         }
     },
