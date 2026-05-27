@@ -6,8 +6,21 @@ import { registerSchema, loginSchema } from '../validators/auth.validator'
 
 const router = Router()
 
-router.post('/register', validate(registerSchema), authController.register)
-router.post('/login',    validate(loginSchema),    authController.login)
-router.get('/me',        requireAuth,              authController.me)
+router.post(
+    '/register', 
+    validate(registerSchema), 
+    authController.register
+)
+router.post(
+    '/login',    
+    validate(loginSchema),    
+    authController.login
+)
+
+router.get(
+    '/me',        
+    requireAuth,              
+    authController.me
+)
 
 export default router
