@@ -42,4 +42,15 @@ export const authController = {
             res.status(500).json({ error: 'INTERNAL_ERROR' })
         }
     },
+
+    async lineAuth(req: Request, res: Response) {
+        try {
+            const result = await authService.lineAuth(req.body.accessToken)
+            res.json(result)
+        } catch (err: any) {
+            if (err.message === 'LINE_AUTH_FAILED')
+                return res.status(401).json({ error: err.message })
+            res.status(500).json({ error: 'INTERNAL_ERROR' })
+        }
+    } ,
 }

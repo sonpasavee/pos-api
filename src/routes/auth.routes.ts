@@ -3,6 +3,7 @@ import { authController } from '../controllers/auth.controller'
 import { requireAuth } from '../middlewares/auth.middleware'
 import { validate } from '../middlewares/validate.middleware'
 import { registerSchema, loginSchema } from '../validators/auth.validator'
+import { lineAuthSchema } from '../validators/auth.validator'
 
 const router = Router()
 
@@ -21,6 +22,12 @@ router.get(
     '/me',        
     requireAuth,              
     authController.me
+)
+
+router.post(
+    '/line' , 
+    validate(lineAuthSchema) , 
+    authController.lineAuth
 )
 
 export default router

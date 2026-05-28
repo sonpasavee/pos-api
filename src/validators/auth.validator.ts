@@ -11,3 +11,7 @@ export const loginSchema = z.object({
     email: z.string().email(),
     password: z.string().min(1),
 })
+
+export const lineAuthSchema = z.object({
+    accessToken: z.string().min(1),
+})

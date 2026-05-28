@@ -4,9 +4,13 @@ const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
 
 export interface JWTPayload {
   userId: string
-  email: string
-  role: 'OWNER' | 'STAFF'
-  restaurantId: string
+  role: 'OWNER' | 'STAFF' | 'CUSTOMER'  // เพิ่ม CUSTOMER
+  // staff fields
+  email?: string
+  restaurantId?: string
+  // customer fields
+  lineUserId?: string
+  displayName?: string
 }
 
 export async function signToken(payload: JWTPayload): Promise<string> {

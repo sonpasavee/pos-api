@@ -63,6 +63,15 @@ model User {
   createdAt    DateTime   @default(now())
 }
 
+model Customer {
+  id          String   @id @default(cuid())
+  lineUserId  String   @unique
+  displayName String
+  pictureUrl  String?
+  createdAt   DateTime @default(now())
+  orders      Order[]
+}
+
 model Table {
   id           String     @id @default(cuid())
   number       Int
@@ -101,6 +110,8 @@ model Order {
   updatedAt DateTime    @updatedAt
   items     OrderItem[]
   payment   Payment?
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id])
 }
 
 model OrderItem {

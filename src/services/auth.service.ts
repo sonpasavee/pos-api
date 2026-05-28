@@ -94,5 +94,50 @@ export const authService = {
                 restaurantId: user.restaurantId
             }
         }
-    }
+    },
+
+    async lineAuth(accessToken: string) {
+        const lineRes = await fetch(
+            'https://api.line.me/v2/profile',
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            }
+        )
+
+        if (!lineRes.ok) {
+            throw new Error('LINE_AUTH_FAILED')
+        }
+
+        const lineProfile = await lineRes.json() as {
+            userId: string
+            displayName: string
+            pictureUrl?: string
+        }
+        // upsert customer — มีแล้วอัปเดต ไม่มีสร้างใหม่
+        const customer = await prisma.customer.upsert({
+            where: { lineUserId: lineProfile.userId },
+            update: {
+                displayName: lineProfile.displayName,
+                pictureUrl: lineProfile.pictureUrl,
+            },
+            create: {
+                lineUserId: lineProfile.userId,
+                displayName: lineProfile.displayName,
+                pictureUrl: lineProfile.pictureUrl,
+            },
+        })
+
+        // sign JWT ของเราเอง (แยกจาก staff)
+        const token = await signToken({
+            userId: customer.id,
+            lineUserId: customer.lineUserId,
+            displayName: customer.displayName,
+            role: 'CUSTOMER',
+        })
+
+        return { token, customer }
+
+    } ,
 }
