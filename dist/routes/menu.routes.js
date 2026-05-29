@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const menu_controller_1 = require("../controllers/menu.controller");
+const auth_middleware_1 = require("../middlewares/auth.middleware");
+const role_middleware_1 = require("../middlewares/role.middleware");
+const validate_middleware_1 = require("../middlewares/validate.middleware");
+const menu_validator_1 = require("../validators/menu.validator");
+const router = (0, express_1.Router)();
+router.get('/public/:restaurantId', menu_controller_1.menuController.getPublic);
+router.get('/', auth_middleware_1.requireAuth, (0, role_middleware_1.requireRole)('OWNER', 'STAFF'), menu_controller_1.menuController.getAll);
+router.post('/', auth_middleware_1.requireAuth, (0, role_middleware_1.requireRole)('OWNER'), (0, validate_middleware_1.validate)(menu_validator_1.createMenuItemSchema), menu_controller_1.menuController.create);
+router.patch('/:id', auth_middleware_1.requireAuth, (0, role_middleware_1.requireRole)('OWNER'), (0, validate_middleware_1.validate)(menu_validator_1.updateMenuItemSchema), menu_controller_1.menuController.update);
+router.delete('/:id', auth_middleware_1.requireAuth, (0, role_middleware_1.requireRole)('OWNER'), menu_controller_1.menuController.remove);
+exports.default = router;

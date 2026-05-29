@@ -16,9 +16,13 @@ export const orderController = {
         }
     },
 
-    async getById(req: Request<{ id: string, restaurantId: string }>, res: Response) {
+    async getById(req: Request<{ id: string }>, res: Response) {
         try {
-            const order = await orderService.getById(req.params.id, req.params.restaurantId)
+            const restaurantId = req.user?.restaurantId
+            if (!restaurantId) {
+                return res.status(401).json({ error: 'UNAUTHORIZED' })
+            }
+            const order = await orderService.getById(req.params.id, restaurantId)
             res.json(order)
         } catch (err: any) {
             return res.status(500).json({ error: 'INTERNAL_ERROR' })

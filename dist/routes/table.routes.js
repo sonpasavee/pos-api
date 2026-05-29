@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const table_controller_1 = require("../controllers/table.controller");
+const auth_middleware_1 = require("../middlewares/auth.middleware");
+const role_middleware_1 = require("../middlewares/role.middleware");
+const validate_middleware_1 = require("../middlewares/validate.middleware");
+const table_validator_1 = require("../validators/table.validator");
+const router = (0, express_1.Router)();
+router.get('/qr/:token', table_controller_1.tableController.getByQrToken);
+router.get('/', auth_middleware_1.requireAuth, (0, role_middleware_1.requireRole)('OWNER', 'STAFF'), table_controller_1.tableController.getAll);
+router.post('/', auth_middleware_1.requireAuth, (0, role_middleware_1.requireRole)('OWNER'), (0, validate_middleware_1.validate)(table_validator_1.createTableSchema), table_controller_1.tableController.create);
+router.delete('/:id', auth_middleware_1.requireAuth, (0, role_middleware_1.requireRole)('OWNER'), table_controller_1.tableController.remove);
+exports.default = router;

@@ -2,9 +2,13 @@ import type { Request, Response } from 'express'
 import { tableService } from '../services/table.service'
 
 export const tableController = {
-    async getAll(req: Request<{ restaurantId: string }>, res: Response) {
+    async getAll(req: Request, res: Response) {
         try {
-            const tables = await tableService.getAll(req.params.restaurantId)
+            const restaurantId = req.user?.restaurantId
+            if (!restaurantId) {
+                return res.status(401).json({ error: 'UNAUTHORIZED' })
+            }
+            const tables = await tableService.getAll(restaurantId)
             res.json(tables)
         } catch {
             res.status(500).json({ error: 'INTERNAL_ERROR' })
@@ -22,10 +26,14 @@ export const tableController = {
         }
     },
 
-    async create(req: Request<{ restaurantId: string }>, res: Response) {
+    async create(req: Request, res: Response) {
         try {
+            const restaurantId = req.user?.restaurantId
+            if (!restaurantId) {
+                return res.status(401).json({ error: 'UNAUTHORIZED' })
+            }
             const table = await tableService.create(
-                req.params.restaurantId,
+                restaurantId,
                 req.body.number
             )
             res.status(201).json(table)
@@ -36,9 +44,13 @@ export const tableController = {
         }
     },
 
-    async remove(req: Request<{ id: string, restaurantId: string }>, res: Response) {
+    async remove(req: Request<{ id: string }>, res: Response) {
         try {
-            await tableService.remove(req.params.id, req.params.restaurantId)
+            const restaurantId = req.user?.restaurantId
+            if (!restaurantId) {
+                return res.status(401).json({ error: 'UNAUTHORIZED' })
+            }
+            await tableService.remove(req.params.id, restaurantId)
             res.json({ success: true })
         } catch (err: any) {
             if (err.message === 'NOT_FOUND')
