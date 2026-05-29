@@ -1,13 +1,22 @@
-import { createApp } from './app';
-import dotenv from 'dotenv';
+import 'dotenv/config'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
+import { createApp } from './app'
 
-// โหลด Environment Variables
-dotenv.config();
+const app = createApp()
+const httpServer = createServer(app)
 
-const app = createApp();
-const PORT = process.env.PORT || 4000;
+export const io = new Server(httpServer, {
+  cors: { origin: process.env.FRONTEND_URL || '*' },
+})
 
-app.listen(PORT, () => {
-  console.log(`🚀 POS API Server is running on http://localhost:${PORT}`);
-  console.log(`🔌 Health check endpoint: http://localhost:${PORT}/health`);
-});
+io.on('connection', (socket) => {
+  socket.on('join:restaurant', (restaurantId: string) => {
+    socket.join(`restaurant:${restaurantId}`)
+  })
+})
+
+const PORT = process.env.PORT || 4000
+httpServer.listen(PORT, () => {
+  console.log(`Server running → http://localhost:${PORT}`)
+})

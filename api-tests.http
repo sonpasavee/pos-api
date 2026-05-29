@@ -1,0 +1,107 @@
+### ============================================================================
+### REST API Test - POS System
+### Prerequisite: Install VS Code Extension "REST Client" (humao.rest-client)
+### ============================================================================
+
+@baseUrl = http://localhost:4000
+@restaurantId = <replace_with_restaurant_id_from_seed>
+@tableId = <replace_with_table_id_from_seed>
+@menuItemId = <replace_with_menu_item_id_from_seed>
+
+# ---------------------------------------------------------
+# 1. Auth / Login (Staff / Owner)
+# ---------------------------------------------------------
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "owner@test.com",
+    "password": "password123"
+}
+
+###
+
+# Get Token from Login Response
+@token = {{login.response.body.token}}
+
+
+# ---------------------------------------------------------
+# 2. Menu Management
+# ---------------------------------------------------------
+### Get All Menus (Public / Customer via QR)
+GET {{baseUrl}}/menu/public/{{restaurantId}}
+
+###
+
+### Create Menu Item (Owner/Staff)
+POST {{baseUrl}}/menu
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "name": "ชาบูรวมมิตร",
+    "description": "ชาบูชุดใหญ่",
+    "category": "Main",
+    "price": 299,
+    "available": true
+}
+
+
+# ---------------------------------------------------------
+# 3. Order Management (Customer)
+# ---------------------------------------------------------
+### Create Order (Customer scans QR)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+    "tableId": "{{tableId}}",
+    "items": [
+        {
+            "menuItemId": "{{menuItemId}}",
+            "quantity": 2
+        }
+    ],
+    "note": "ไม่เผ็ด"
+}
+
+# ---------------------------------------------------------
+# 4. Order Management (Staff / Owner)
+# ---------------------------------------------------------
+### Get All Orders for the Restaurant
+# @name getOrders
+GET {{baseUrl}}/orders
+Authorization: Bearer {{token}}
+
+###
+
+# Get the first order ID from the previous request to test update
+@orderId = {{getOrders.response.body.[0].id}}
+
+### Update Order Status (e.g. PENDING -> PREPARING -> COMPLETED)
+PATCH {{baseUrl}}/orders/{{orderId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "status": "PREPARING"
+}
+
+### Cancel Order
+PATCH {{baseUrl}}/orders/{{orderId}}/cancel
+Authorization: Bearer {{token}}
+
+
+# ---------------------------------------------------------
+# 5. Customer LINE LIFF Auth
+# ---------------------------------------------------------
+### LINE Auth Login
+POST {{baseUrl}}/auth/line
+Content-Type: application/json
+
+{
+    "lineUserId": "U1234567890abcdef",
+    "displayName": "John Doe",
+    "pictureUrl": "https://example.com/profile.jpg"
+}
