@@ -12,7 +12,7 @@ export function createApp() {
     app.use(helmet())
     app.use(express.json())
     app.use(morgan('dev'))
-    app.use(routes)
+    app.use('/api', routes)
 
     app.get('/health', (req, res) => {
         res.json({ status: 'OK' })
